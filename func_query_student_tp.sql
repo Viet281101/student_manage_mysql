@@ -67,21 +67,32 @@ VALUES
 	(2, 1, 12, 1);
 
 
--- Hiển thị tất cả các thông tin môn học (bảng Subject) có Credit lớn nhất
-SELECT * 
-FROM Subject 
-WHERE Credit = (SELECT MAX(Credit) FROM Subject);
+-- Hiển thị số lượng sinh viên ở từng nơi
+SELECT Address, COUNT(StudentID) AS 'Số lượng học viên'
+FROM Student
+GROUP BY Address;
 
--- Hiển thị các thông tin môn học có điểm thi lớn nhất
-SELECT su.* 
-FROM Mark m
-JOIN Subject su ON m.SubID = su.SubID
-WHERE m.Mark = (SELECT MAX(Mark) FROM Mark);
+-- Tính điểm trung bình các môn học của mỗi học viên
+SELECT S.StudentID, S.StudentName, AVG(M.Mark) AS AverageMark
+FROM Student S
+JOIN Mark M ON S.StudentID = M.StudentID
+GROUP BY S.StudentID, S.StudentName;
 
--- Hiển thị các thông tin sinh viên và điểm trung bình của mỗi sinh viên, xếp hạng theo thứ tự điểm giảm dần
-SELECT s.StudentName, AVG(m.Mark) AS AverageMark
-FROM Mark m
-JOIN Student s ON m.StudentID = s.StudentID
-GROUP BY s.StudentID, s.StudentName
-ORDER BY AverageMark DESC;
+-- Hiển thị những bạn học viên có điểm trung bình các môn học lớn hơn 15
+SELECT S.StudentID, S.StudentName, AVG(M.Mark) AS AverageMark
+FROM Student S
+JOIN Mark M ON S.StudentID = M.StudentID
+GROUP BY S.StudentID, S.StudentName
+HAVING AVG(M.Mark) > 15;
+
+-- Hiển thị thông tin các học viên có điểm trung bình lớn nhất
+SELECT S.StudentID, S.StudentName, AVG(M.Mark) AS AverageMark
+FROM Student S
+JOIN Mark M ON S.StudentID = M.StudentID
+GROUP BY S.StudentID, S.StudentName
+HAVING AVG(M.Mark) >= ALL (
+	SELECT AVG(Mark)
+	FROM Mark
+	GROUP BY StudentID
+);
 
